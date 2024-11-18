@@ -1,5 +1,5 @@
-import sqlite3
-from tkinter import Tk, Label, Entry, Button, StringVar, messagebox, ttk
+import sqlite3 # Digunakan untuk mengelola database SQLite.
+from tkinter import Tk, Label, Entry, Button, StringVar, messagebox, ttk # Library untuk membuat antarmuka pengguna berbasis GUI dan ttk adalah Submodul tkinter yang menyediakan widget bergaya modern.
 
 # Fungsi untuk membuat database dan tabel
 def create_database():
@@ -7,19 +7,19 @@ def create_database():
     cursor = conn.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS nilai_siswa (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
             nama_siswa TEXT,
             biologi INTEGER,
             fisika INTEGER,
             inggris INTEGER,
             prediksi_fakultas TEXT
         )
-    """)
+    """) # Otomatis memberikan ID unik untuk setiap data yang dimasukkan.
     conn.commit()
     conn.close()
 
 # Fungsi untuk menyimpan data baru ke database
-def save_to_database(nama, biologi, fisika, inggris, prediksi):
+def save_to_database(nama, biologi, fisika, inggris, prediksi): # Menyimpan data siswa (nama, nilai pelajaran, dan prediksi fakultas) ke database.
     conn = sqlite3.connect('nilai_siswa.db')
     cursor = conn.cursor()
     cursor.execute("""
@@ -30,7 +30,8 @@ def save_to_database(nama, biologi, fisika, inggris, prediksi):
     conn.close()
 
 # Fungsi untuk memperbarui data di database
-def update_database(record_id, nama, biologi, fisika, inggris, prediksi):
+def update_database(record_id, nama, biologi, fisika, inggris, prediksi): # Memperbarui data yang sudah ada berdasarkan id.
+
     conn = sqlite3.connect("nilai_siswa.db")
     cursor = conn.cursor()
     cursor.execute("""
@@ -42,7 +43,7 @@ def update_database(record_id, nama, biologi, fisika, inggris, prediksi):
     conn.close()
 
 # Fungsi untuk mengambil semua data dari database
-def fetch_data():
+def fetch_data(): # Mengambil semua data dari tabel nilai_siswa.
     conn = sqlite3.connect('nilai_siswa.db')
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM nilai_siswa")
@@ -51,7 +52,7 @@ def fetch_data():
     return rows
 
 # Fungsi untuk menghapus data dari database
-def delete_database(record_id):
+def delete_database(record_id): # Menghapus data berdasarkan id dari database.
     conn = sqlite3.connect('nilai_siswa.db')
     cursor = conn.cursor()
     cursor.execute('DELETE FROM nilai_siswa WHERE id = ?', (record_id,))
@@ -59,7 +60,7 @@ def delete_database(record_id):
     conn.close()
 
 # Fungsi untuk menghitung prediksi fakultas
-def calculate_prediction(biologi, fisika, inggris):
+def calculate_prediction(biologi, fisika, inggris): #Memberikan prediksi fakultas berdasarkan nilai tertinggi dari tiga mata pelajaran.
     if biologi > fisika and biologi > inggris:
         return "Kedokteran"
     elif fisika > biologi and fisika > inggris:
@@ -70,7 +71,7 @@ def calculate_prediction(biologi, fisika, inggris):
         return "Tidak Diketahui"
 
 # Fungsi untuk menangani tombol submit
-def submit():
+def submit(): # Menyimpan data baru.
     try:
         nama = nama_var.get()
         biologi = int(biologi_var.get())
@@ -92,7 +93,7 @@ def submit():
         messagebox.showerror("Error", str(e))
 
 # Fungsi untuk menangani tombol update
-def update():
+def update(): #Memperbarui data yang dipilih.
     try:
         if not selected_record_id.get():
             raise Exception("Pilih data dari tabel untuk di-update!")
@@ -118,7 +119,7 @@ def update():
         messagebox.showerror("Error", str(e))
 
 # Fungsi untuk menangani tombol delete
-def delete():
+def delete(): # Menghapus data yang dipilih.
     try:
         if not selected_record_id.get():
             raise Exception("Pilih data dari tabel untuk dihapus!")
@@ -136,7 +137,7 @@ def delete():
         messagebox.showerror("Error", str(e))
 
 # Fungsi untuk mengosongkan input
-def clear_inputs():
+def clear_inputs(): # Mengosongkan semua input pada form.
     nama_var.set("")
     biologi_var.set("")
     fisika_var.set("")
@@ -144,14 +145,14 @@ def clear_inputs():
     selected_record_id.set("")
 
 # Fungsi untuk mengisi tabel dengan data dari database
-def populate_table():
+def populate_table(): # Mengisi tabel dengan data dari database.
     for row in table.get_children():
         table.delete(row)
     for row in fetch_data():
         table.insert('', 'end', values=row)
 
 # Fungsi untuk menangani pemilihan data dari tabel
-def on_table_select(event):
+def on_table_select(event): # Menangani pemilihan baris dalam tabel.
     try:
         selected_item = table.selection()[0]
         values = table.item(selected_item, "values")
@@ -164,11 +165,12 @@ def on_table_select(event):
         pass
 
 # Inisialisasi database
-create_database()
+create_database() # Memastikan database dan tabel sudah dibuat sebelum program berjalan.
 
 # Membuat GUI dengan tkinter
 root = Tk()
 root.title("Prediksi Fakultas Siswa")
+root.configure(bg="Lightblue")  # Warna latar belakang GUI
 
 # Variabel tkinter
 nama_var = StringVar()
@@ -176,6 +178,12 @@ biologi_var = StringVar()
 fisika_var = StringVar()
 inggris_var = StringVar()
 selected_record_id = StringVar()
+
+# Tambahkan gaya untuk tabel dan tombol
+style = ttk.Style()
+style.theme_use("clam")
+style.configure("TButton", background="White", foreground="White", font=("Arial", 10, "bold"), padding=5)
+style.map("TButton", background=[("active", "White")])
 
 # Elemen GUI
 Label(root, text="Nama Siswa:").grid(row=0, column=0, padx=10, pady=5)
@@ -193,6 +201,8 @@ Entry(root, textvariable=inggris_var).grid(row=3, column=1, padx=10, pady=5)
 Button(root, text="Add", command=submit).grid(row=4, column=0, padx=10, pady=10)
 Button(root, text="Update", command=update).grid(row=4, column=1, padx=10, pady=10)
 Button(root, text="Delete", command=delete).grid(row=4, column=2, padx=10, pady=10)
+# Label & Entry: Untuk memasukkan data siswa.
+# Button: Tombol untuk menyimpan, memperbarui, dan menghapus data.
 
 # Tabel untuk menampilkan data
 columns = ("id", "nama_siswa", "biologi", "fisika", "inggris", "prediksi_fakultas")
@@ -204,7 +214,8 @@ for col in columns:
     table.column(col, width=100)
 
 table.grid(row=5, column=0, columnspan=3, padx=10, pady=10)
-table.bind("<<TreeviewSelect>>", on_table_select)
+table.bind("<<TreeviewSelect>>", on_table_select) # Menghubungkan pemilihan baris di tabel dengan fungsi on_table_select.
 
 populate_table()
-root.mainloop()
+root.mainloop() # Memulai loop utama GUI, memungkinkan pengguna untuk berinteraksi dengan antarmuka.
+
